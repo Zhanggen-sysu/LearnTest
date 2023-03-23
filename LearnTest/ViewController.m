@@ -58,10 +58,15 @@
 //        make.size.mas_equalTo(CGSizeMake(200,200));
 //    }];
 //    [button setImagePosition:GZEBtnImgPosition_Right spacing:20 contentAlign:GZEBtnContentAlign_Center contentOffset:50 imageSize:CGSizeMake(10, 10) titleSize:CGSizeZero];
-    GZEWrappingLabel *label = [[GZEWrappingLabel alloc] initWithFrame:CGRectMake(20, 100, 300, 500)];
-    label.text = @"If you specify the region parameter, the regional release date will be used instead of the primary release date. The date returned will be the first date based on your query (ie. if a with_release_type is specified). It's important to note the order of the release types that are used. Specifying would return the limited theatrical release date as opposed to which would return the theatrical date. and";
-    label.wrapNumberOfLine = 5;
+    GZEWrappingLabel *label = [[GZEWrappingLabel alloc] initWithFrame:CGRectZero];
+    label.text = @"If you specify the region parameter, the regional release date will be used instead of the primary release date. The date returned will be the first date based on your query (ie. if a with_release_type is specified). It's important to note the order of the release types that are used. Specifying would return the limited theatrical release date as opposed to which would return the theatrical date.";
+    label.wrapNumberOfLine = 6;
     [self.view addSubview:label];
+    [label mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.view).offset(50);
+        make.left.equalTo(self.view).offset(20);
+        make.right.equalTo(self.view).offset(-20);
+    }];
 }
 
 - (NSArray *)getLinesArrayOfStringInLabel:(UILabel *)label{

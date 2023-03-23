@@ -44,11 +44,52 @@
     CGPoint point = [ges locationInView:self];
     if (CGRectContainsPoint(self.wrapFrame, point)) {
         self.isWrap = YES;
+        [self invalidateIntrinsicContentSize];
         [self setNeedsDisplay];
     } else if (CGRectContainsPoint(self.expandFrame, point)) {
         self.isWrap = NO;
+        [self invalidateIntrinsicContentSize];
         [self setNeedsDisplay];
     }
+}
+
+- (CGSize)intrinsicContentSize
+{
+    return [self sizeThatFits:CGSizeMake(self.bounds.size.width, MAXFLOAT)];
+}
+
+- (CGSize)sizeThatFits:(CGSize)size
+{
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddRect(path, NULL, CGRectMake(0, 0, size.width, size.height));
+    NSMutableAttributedString *attStr = [[NSMutableAttributedString alloc] initWithString:self.text attributes:@{
+        NSFontAttributeName: self.font,
+        NSForegroundColorAttributeName: self.textColor
+    }];
+    CTFramesetterRef frameSetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)attStr);
+    CTFrameRef frame = CTFramesetterCreateFrame(frameSetter, CFRangeMake(0, 0), path, NULL);
+    NSArray *lines = (NSArray *)CTFrameGetLines(frame);
+    CGPoint lineOrigins[lines.count];
+    CTFrameGetLineOrigins(frame, CFRangeMake(0, lines.count), lineOrigins);
+    CGFloat height = 0;
+    if (!self.expandText || lines.count <= 1) {
+        height = lines.count * self.font.lineHeight;
+    } else {
+        if (self.isWrap) {
+            height = self.wrapNumberOfLine * self.font.lineHeight;
+        } else {
+            CTLineRef line = (__bridge CTLineRef)(lines[lines.count - 1]);
+            CTLineRef truncationTokenLine = CTLineCreateWithAttributedString((CFAttributedStringRef)self.wrapText);
+            double lineW = CTLineGetTypographicBounds(line, NULL, NULL, NULL);
+            double tokenW = CTLineGetTypographicBounds(truncationTokenLine, NULL, NULL, NULL);
+            if (lineW + tokenW > size.width) {
+                height = (lines.count + 1) * self.font.lineHeight;
+            } else {
+                height = lines.count * self.font.lineHeight;
+            }
+        }
+    }
+    return CGSizeMake(size.width, height);
 }
 
 - (void)drawRect:(CGRect)rect
@@ -166,7 +207,7 @@
                     CFRelease(truncationTokenLine);
                     CFRelease(ellipsesTokenLine);
                     // y轴是反转的，所以减y轴坐标，还要再多减一行
-                    self.expandFrame = CGRectMake(lineOrigins[lineIndex].x+lineW, lineIndex * (lineOrigins[0].y - lineOrigins[1].y),tokenW, (lineOrigins[0].y - lineOrigins[1].y));
+                    self.expandFrame = CGRectMake(lineOrigins[lineIndex].x+lineW, lineIndex * self.font.lineHeight,tokenW, self.font.lineHeight);
                 } else {
                     CGContextSetTextPosition(context, lineOrigins[lineIndex].x, lineOrigins[lineIndex].y);
                     CTLineDraw(line, context);
@@ -185,12 +226,12 @@
                     double tokenW = CTLineGetTypographicBounds(truncationTokenLine, NULL, NULL, NULL);
                     if (lineW + tokenW > rect.size.width) {
                         // token在下一行
-                        CGContextSetTextPosition(context, lineOrigins[lineIndex].x, lineOrigins[lineIndex].y - (lineOrigins[0].y - lineOrigins[1].y));
-                        self.wrapFrame = CGRectMake(lineOrigins[lineIndex].x, (lineIndex + 1) * (lineOrigins[0].y - lineOrigins[1].y), tokenW, lineOrigins[0].y - lineOrigins[1].y);
+                        CGContextSetTextPosition(context, lineOrigins[lineIndex].x, lineOrigins[lineIndex].y - self.font.lineHeight);
+                        self.wrapFrame = CGRectMake(lineOrigins[lineIndex].x, (lineIndex + 1) * self.font.lineHeight, tokenW, self.font.lineHeight);
                     } else {
                         // token在行尾
                         CGContextSetTextPosition(context, lineOrigins[lineIndex].x + lineW, lineOrigins[lineIndex].y);
-                        self.wrapFrame = CGRectMake(lineOrigins[lineIndex].x + lineW, lineIndex * (lineOrigins[0].y - lineOrigins[1].y), tokenW, lineOrigins[0].y - lineOrigins[1].y);
+                        self.wrapFrame = CGRectMake(lineOrigins[lineIndex].x + lineW, lineIndex * self.font.lineHeight, tokenW, self.font.lineHeight);
                     }
                     CTLineDraw(truncationTokenLine, context);
                 }
