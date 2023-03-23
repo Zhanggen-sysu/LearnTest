@@ -59,7 +59,8 @@
 //    }];
 //    [button setImagePosition:GZEBtnImgPosition_Right spacing:20 contentAlign:GZEBtnContentAlign_Center contentOffset:50 imageSize:CGSizeMake(10, 10) titleSize:CGSizeZero];
     GZEWrappingLabel *label = [[GZEWrappingLabel alloc] initWithFrame:CGRectMake(20, 100, 300, 500)];
-    label.text = @"If you specify the region parameter, the regional release date will be used instead of the primary release date. The date returned will be the first date based on your query (ie. if a with_release_type is specified). It's important to note the order of the release types that are used. Specifying would return the limited theatrical release date as opposed to which would return the theatrical date.";
+    label.text = @"If you specify the region parameter, the regional release date will be used instead of the primary release date. The date returned will be the first date based on your query (ie. if a with_release_type is specified). It's important to note the order of the release types that are used. Specifying would return the limited theatrical release date as opposed to which would return the theatrical date. and";
+    label.wrapNumberOfLine = 5;
     [self.view addSubview:label];
 }
 
