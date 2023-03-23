@@ -1,0 +1,26 @@
+PODS:
+  - LookinServer (1.1.5):
+    - LookinServer/Core (= 1.1.5)
+  - LookinServer/Core (1.1.5)
+  - Masonry (1.1.0)
+  - YYText (1.0.7)
+
+DEPENDENCIES:
+  - LookinServer
+  - Masonry
+  - YYText
+
+SPEC REPOS:
+  trunk:
+    - LookinServer
+    - Masonry
+    - YYText
+
+SPEC CHECKSUMS:
+  LookinServer: 2893f2bae53cbf3fd49bbe1a8ea1745582ef1317
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  YYText: 5c461d709e24d55a182d1441c41dc639a18a4849
+
+PODFILE CHECKSUM: c2845e8f31c71580eba128e2cada61eb2b2553b4
+
+COCOAPODS: 1.11.3
